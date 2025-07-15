@@ -1,0 +1,10 @@
+[
+  {"wallet_address": "0x123...", "type": "deposit", "timestamp": 1678886400, "amount": 1000},
+  {"wallet_address": "0x456...", "type": "borrow", "timestamp": 1678886460, "amount": 500},
+  {"wallet_address": "0x123...", "type": "borrow", "timestamp": 1678886520, "amount": 200},
+  {"wallet_address": "0x789...", "type": "deposit", "timestamp": 1678886580, "amount": 5000},
+  {"wallet_address": "0x456...", "type": "repay", "timestamp": 1678886640, "amount": 500},
+  {"wallet_address": "0x123...", "type": "repay", "timestamp": 1678886700, "amount": 100},
+  {"wallet_address": "0xabc...", "type": "liquidationcall", "timestamp": 1678886760, "amount": 0},
+  {"wallet_address": "0x123...", "type": "deposit", "timestamp": 1678886820, "amount": 300}
+]
