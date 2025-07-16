@@ -15,8 +15,6 @@ project-root/
 ├── notebooks/
 │   ├── 1_data_cleaning_and_EDA.ipynb     # Data profiling and visualization
 │   ├── 2_feature_engineering.ipynb       # Feature derivation logic
-│   ├── 3_scoring_model.ipynb             # Scoring experimentation
-│   └── 4_validation_and_analysis.ipynb   # Final insights and visual validation
 ├── score_wallets.py                      # ✅ One-Step scoring pipeline (production-ready)
 ├── scores.csv                            # ✅ Output: [wallet_address, credit_score]
 ├── README.md                             # ✅ You're here!
