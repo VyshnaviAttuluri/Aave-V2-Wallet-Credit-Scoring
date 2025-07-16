@@ -13,7 +13,7 @@ This project presents a full-stack machine learning pipeline that generates DeFi
 ```
 project-root/
 ├── notebooks/
-│   ├── 1_data_cleaning_and_EDA.ipynb     # Data profiling and visualization
+│   ├── Aave_V2_Wallet_Credit_Scoring_EDA.ipynb    #Data Cleaning & EDA
 │   ├── 2_feature_engineering.ipynb       # Feature derivation logic
 ├── score_wallets.py                      # ✅ One-Step scoring pipeline (production-ready)
 ├── scores.csv                            # ✅ Output: [wallet_address, credit_score]
