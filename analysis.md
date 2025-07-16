@@ -1,37 +1,42 @@
-analysis.md
-Aave V2 Wallet Credit Scoring — Data Analysis & Strategic Insights
-1. Executive Summary
-This document presents a comprehensive analysis of wallet-level credit risk leveraging transaction data from the Aave V2 DeFi protocol. Our end-to-end workflow extracts key behavioral features, applies a robust heuristic scoring methodology, and generates normalized credit scores on a 0–1000 scale across 3,497 unique wallets. The framework facilitates actionable risk stratification, enabling informed lending decisions and portfolio risk management in decentralized finance ecosystems.
+# 📊 Aave V2 Wallet Credit Scoring — Data Analysis & Strategic Insights
 
-2. Dataset & Transaction Overview
-Data Source: 99,752 cleaned, timestamped transaction records capturing wallet interactions such as deposits, borrows, repayments, liquidations, and redeems.
+---
 
-Wallet Population: 3,497 unique wallet addresses analyzed for creditworthiness.
+## 1. Executive Summary
 
-Transaction Types: Dominated by deposits and borrows, with repayments and liquidations providing critical risk signals.
+This report summarizes the creditworthiness of DeFi wallets based on behavioral features extracted from their transaction activity on Aave V2. Wallets are scored from 0 to 1000 using a custom heuristic model. The purpose of this analysis is to identify patterns among high-risk and low-risk wallets to enable better risk management.
 
-Temporal Scope: Multi-month data providing longitudinal insight into wallet behavior dynamics.
+---
 
-3. Feature Engineering Summary
-We engineered wallet-level behavioral features grounded in domain expertise and DeFi risk indicators:
+## 2. Dataset Overview
 
-Feature	Description
-total_deposits	Number of deposit transactions per wallet, indicating capital inflow and engagement level.
-total_borrows	Number of borrow transactions, reflecting credit utilization frequency.
-repay_to_borrow_ratio	Sum of repayments divided by sum of borrows, measuring repayment discipline and credit reliability.
-avg_borrow_repay_time	Average elapsed time (in seconds) between borrow and repay transactions, capturing timeliness of repayment.
-liquidation_count	Frequency of liquidation events, serving as a key negative risk factor.
-active_days	Duration in days between first and last transaction, reflecting wallet maturity.
-tx_frequency	Average transactions per active day, indicating operational activity intensity.
-unique_tx_types	Count of distinct transaction types performed, proxying for behavioral diversity and sophistication.
+- **Source**: `transactions.json`
+- **Wallets Analyzed**: 3,497
+- **Transaction Count**: ~100,000
+- **Fields**: wallet_address, type, amount, timestamp
 
-All features were carefully normalized and aggregated at the wallet level to ensure comparability and stability in scoring.
+---
 
-4. Heuristic Scoring Model
-The credit scoring function applies weighted linear combinations reflecting the relative risk impact of each feature:
+## 3. Feature Engineering Recap
 
-python
-Copy code
+| Feature | Description |
+|--------|-------------|
+| `total_deposits` | Number of deposit actions by the wallet |
+| `total_borrows` | Number of borrow actions |
+| `repay_to_borrow_ratio` | Total repaid / total borrowed amount |
+| `avg_borrow_repay_time` | Mean time delay (in seconds) between borrow and repay |
+| `liquidation_count` | Number of liquidation events triggered for the wallet |
+| `active_days` | Days active between first and last transaction |
+| `tx_frequency` | Transactions per active day |
+| `unique_tx_types` | Number of unique transaction types (e.g., deposit, borrow, repay) |
+
+---
+
+## 4. Credit Scoring Logic
+
+A weighted formula is applied to engineer a raw credit score, then scaled between 0 and 1000:
+
+```python
 score = (
     total_deposits * 10 +
     repay_to_borrow_ratio * 100 +
@@ -39,46 +44,82 @@ score = (
     tx_frequency * 200 -
     liquidation_count * 200
 )
-Positive weights emphasize deposit volume, repayment discipline, prompt repayment timing, and wallet activity.
+```
 
-Liquidation events incur substantial penalties, lowering creditworthiness.
+Scores are normalized to 0–1000 range using MinMax scaling.
 
-Final scores are scaled to a 0–1000 range using min-max normalization to standardize across wallets.
+---
 
-5. Results & Key Insights
-Score Distribution: Wallet scores span approximately 100 to over 600, indicating diverse risk profiles with identifiable high- and low-risk cohorts.
+## 5. Credit Score Distribution
+<img width="859" height="547" alt="image" src="https://github.com/user-attachments/assets/937292c9-25e5-4a48-8ff0-be8aaebba4e3" />
 
-Risk Correlations: Wallets with low or zero liquidations consistently achieve higher scores; repayment ratios strongly correlate with creditworthiness.
+The score range (0–1000) was split into 10 buckets:
 
-Activity Patterns: High-frequency and behaviorally diverse wallets generally score better, demonstrating operational sophistication.
+| Score Range | Wallet Count | Risk Tier        |
+|-------------|--------------|------------------|
+| 0–99        | Moderate     | 🚨 Likely spam/bots, high risk |
+| 100–199     | Moderate     | Low repayment, high liquidation |
+| 200–299     | High         | Unstable borrowers |
+| 300–399     | High         | Mixed behavior |
+| 400–499     | High         | Borderline healthy |
+| 500–599     | High         | Improving credit pattern |
+| 600–699     | Some         | Mostly reliable |
+| 700–799     | Few          | Very stable wallets |
+| 800–899     | Few          | Excellent credit behavior |
+| 900–1000    | Very few     | Top-tier wallets |
 
-Temporal Behavior: Longer active wallets tend to have moderate to good scores, highlighting experience as a risk mitigator.
 
-6. Business Implications
-The scoring framework delivers actionable wallet credit assessments crucial for dynamic lending strategies in DeFi.
+```python
+import pandas as pd
+import matplotlib.pyplot as plt
 
-Enables risk stratification to optimize interest rates, borrowing limits, and liquidation thresholds.
+scores = pd.read_csv("scores.csv")
+scores['score_bucket'] = pd.cut(scores['credit_score'], bins=range(0, 1100, 100))
+scores['score_bucket'].value_counts().sort_index().plot(kind='bar', color='skyblue', edgecolor='black')
+plt.title("Credit Score Distribution (0–1000)")
+plt.xlabel("Score Range")
+plt.ylabel("Wallet Count")
+plt.grid(True)
+plt.show()
+```
 
-Facilitates proactive risk monitoring to identify and mitigate potential defaults before they impact portfolio health.
+---
 
-Supports data-driven governance and compliance by providing transparent, auditable credit metrics.
+## 6. Wallet Behavior Analysis
+<img width="989" height="590" alt="image" src="https://github.com/user-attachments/assets/1bdf7115-f3c2-4e6a-b9bf-cf2fa54da55e" />
 
-7. Future Roadmap
-Integrate machine learning models for predictive scoring based on temporal trends and feature interactions.
 
-Enrich feature sets with off-chain analytics, social sentiment, and multi-protocol data for holistic wallet profiling.
+<img width="580" height="507" alt="image" src="https://github.com/user-attachments/assets/e0b403ca-6515-4277-9940-68a17b54b89b" />
 
-Develop real-time streaming pipelines to dynamically update wallet scores, enabling continuous risk monitoring.
+### 🔻 Low-Scoring Wallets (0–299)
+- Few deposits and limited repayment behavior
+- High liquidation rate (often >1 per wallet)
+- Long delays between borrow and repay
+- Only 1–2 transaction types (e.g., mostly borrow/liquidation)
 
-Deploy scalable, containerized scoring services integrated with lending platforms through API-driven architectures.
+### 🔹 Mid-Tier Wallets (300–699)
+- Reasonable number of deposits and repayments
+- Moderate activity and some liquidation cases
+- Average repayment times
 
-Appendix: Sample Wallet Credit Scores
-Wallet Address	Credit Score
-0x00000000001accfa9cef68cf5371a23025b6d4b6	100.50
-0x000000000051d07a4fb3bd10121a343d85818da6	100.50
-0x000000000096026fb41fc39f9875d164bd82e2dc	109.64
-0x0000000002032370b971dabd36d72f3e5a7bf1ee	612.39
-0x000000000a38444e0a6e37d3b630d7e855a7cb13	596.18
+### 🔸 High-Scoring Wallets (700–1000)
+- Consistent deposit and repayment cycles
+- Very low or zero liquidation
+- Fast borrow-repay turnover
+- High transaction diversity (4+ types)
+- Frequent active days
 
-This comprehensive deliverable combines strategic vision with technical rigor, showcasing a forward-thinking, scalable credit scoring solution tailored for decentralized finance risk management.
+---
 
+## 7. Summary
+
+- **Score skew**: Majority of users fall into 100–600 range
+- **High scores**: Indicate strong on-chain lending behavior
+- **Low scores**: Flags wallets with default risk or spamming behavior
+
+Use these scores to:
+- Segment wallet populations by risk
+- Adjust loan terms (e.g., interest rate, collateral ratio)
+- Build robust DeFi access control mechanisms
+
+> This analysis empowers data-driven credit modeling in decentralized finance, making protocols safer and more capital-efficient.
