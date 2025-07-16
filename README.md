@@ -20,6 +20,12 @@ project-root/
 ├── README.md                             # ✅ You're here!
 └── analysis.md                           # ✅ Summary of scoring insights and wallet behavior
 ```
+# 🧠 Notebooks Overview
+
+| Notebook Name | Purpose |
+|---------------|---------|
+| `Aave_V2_Wallet_Credit_Scoring_EDA.ipynb` | Clean & explore wallet transactions. Analyze patterns and behavior. |
+| `2_feature_engineering.ipynb` | Extract behavioral features like repay ratio, liquidation count, etc. |
 
 ---
 
